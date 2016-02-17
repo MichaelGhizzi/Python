@@ -9,8 +9,8 @@
 #CPSC-353 Fall 2015
 #Project #1
 #COMPILER: Python2.7
-#FILE: project1.py inputfile.txt outputfile.txt
-#FILE USAGE: ./project1.py <inputfile.txt> <outputfile.txt>
+#FILE: letters.py inputfile.txt outputfile.txt
+#FILE USAGE: ./letters.py <inputfile.txt> <outputfile.txt>
 
 #Program Description: 
 # This program will read each word and determine if it is 'the' or 'principles'.
