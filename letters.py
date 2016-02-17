@@ -24,8 +24,9 @@ import os
 import sys      
 import os.path  #Used to read / write files
 import re       #Used for regular expressions
+import string
 #-----------------
-
+sys.setrecursionlimit(15000)
 #Takes in THREEE arguments, the ./project1.py python script and the
 #"inputname.txt" which includes the source code we want to read
 #"outputname.txt" includes where the output will be written too
@@ -46,76 +47,32 @@ inputfile = sys.argv[1]
 outputfile = sys.argv[2]
 #-----------------
 
+
+
 #Opens the files to be read / written to
 infile = open(inputfile, 'r')
-outfile = open(outputfile, 'w')
-outfile.write("OUTPUT:\n")
+sys.stdout = open(outputfile, 'w')
+print "OUTPUT:\n"
 
 #REGULAR EXPRESSIONS:
 #-----------------
-#the = re.compile(r'^(The|tHe|thE|THE|the)$', re.IGNORECASE)
 the = re.compile(r'^(the)$', re.IGNORECASE)
 principles = re.compile(r'(principles)$', re.IGNORECASE) 
 punc = re.compile(r'^([_]|[-]|[:]|[;]|["]|[\']|[?]|[.]|[,]|[>]|[<]|[~]|[`]|[!]|[@]|[$]|[%]|[&]|[*]|[(]|[)]|[[]|(])|[|]|[/]|[+]|[=]|[{]|[}]|[\^]|[\#])$', re.IGNORECASE)
 alphabet = re.compile(r'^[a-z]', re.IGNORECASE)
-a = re.compile(r'^[a]', re.IGNORECASE)
-b = re.compile(r'^[b]', re.IGNORECASE)
-c = re.compile(r'^[c]', re.IGNORECASE)
-d = re.compile(r'^[d]', re.IGNORECASE)
-e = re.compile(r'^[e]', re.IGNORECASE)
-f = re.compile(r'^[f]', re.IGNORECASE)
-g = re.compile(r'^[g]', re.IGNORECASE)
-h = re.compile(r'^[h]', re.IGNORECASE)
-i = re.compile(r'^[i]', re.IGNORECASE)
-j = re.compile(r'^[j]', re.IGNORECASE)
-k = re.compile(r'^[k]', re.IGNORECASE)
-l = re.compile(r'^[l]', re.IGNORECASE)
-m = re.compile(r'^[m]', re.IGNORECASE)
-n = re.compile(r'^[n]', re.IGNORECASE)
-o = re.compile(r'^[o]', re.IGNORECASE)
-p = re.compile(r'^[p]', re.IGNORECASE)
-q = re.compile(r'^[q]', re.IGNORECASE)
-r = re.compile(r'^[r]', re.IGNORECASE)
-s = re.compile(r'^[s]', re.IGNORECASE)
-t = re.compile(r'^[t]', re.IGNORECASE)
-u = re.compile(r'^[u]', re.IGNORECASE)
-v = re.compile(r'^[v]', re.IGNORECASE)
-w = re.compile(r'^[w]', re.IGNORECASE)
-x = re.compile(r'^[x]', re.IGNORECASE)
-y = re.compile(r'^[y]', re.IGNORECASE)
-z = re.compile(r'^[z]', re.IGNORECASE)
 
-# Implementing a counter variable for each letter initialized to 0
-# Can make into an 27 size array, I WILL DO THIS LATER
-countA = 0
-countB = 0
-countC = 0
-countD = 0
-countE = 0
-countF = 0
-countG = 0
-countH = 0
-countI = 0
-countJ = 0
-countK = 0
-countL = 0
-countM = 0
-countN = 0
-countO = 0
-countP = 0
-countQ = 0
-countR = 0
-countS = 0
-countT = 0
-countU = 0
-countV = 0
-countW = 0
-countX = 0
-countY = 0
-countZ = 0
+# Implementing a counter variable (array) for each letter initialized to 0
+# Can make into an 26 size array
+letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','Q','X','Y','Z']
+        #A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+array = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+stack = []
+# Two variables that will keep track of the number of times 'the' and 'principles' is in the file
 countThe = 0
 countPrinciples = 0
-stack = []
+index1 = 0
+countLong = 0
+
 #First we read in each character from the file.
 #If the character matches our regular expression for the alphabet characters
 #It will then append the character a-z onto the stack
@@ -129,7 +86,6 @@ for line in infile:                         ##For each line in the file
             if isAlphabet:                  ##Checking our isAlphabet regular expression
                 stack.append(lol)           ##Appending the character to the stack a-z
 infile.close()                              ##Closes the file
-
 
 #We re-open the file to find the words 'the' and 'principles'
 infile = open(inputfile, 'r')
@@ -146,173 +102,163 @@ for line in infile:
             countThe += 1
         elif isPrinciples:
             countPrinciples += 1
+infile.close    #Close the file
 
-def parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples):
-    if len(stack) > 0:
-        if stack[0] == 'a':
-            countA += 1
+#Makes a stack with all the words in the file
+wordLong = []
+maxLength = []
+with open('input.txt','r') as f:
+    for line in f:
+        for word in line.split():
+           word = ''.join([c for c in word if c not in ('!', '?', '\'',',','[',']','(',')','_','-','\"')])
+           wordLong.append(word)
+           maxLength.append(word)
+#--------------------------------
+
+print "WORDS: ", wordLong
+#Find the words with the longest length
+#-------------------------------
+y = 0
+longestWords = []
+for item in wordLong:
+    if len(item) > y:
+        longestWords = [item]
+        y = len(item)
+    elif len(item) == y:
+        longestWords.append(item)
+#-------------------------------
+
+print "STACK: ", stack
+
+
+## Parser Function - Recursive 
+## This function will increment our array variable for each character [a-z] in the stack
+## Once the stack is empty, it will output each count of character and exit the program
+def parser(stack, array, countThe, countPrinciples, longestWords):
+    if len(stack) > 0:                                          ##If stack length is > 0 
+        if stack[0].lower() == 'a':                                     ##If the stack is 'a'
+            array[0] = array[0] + 1                             ##Increment first element in the array stack by 1
+            stack.pop(0)                                        ##Pop off the 'a' from the stack
+            parser(stack, array, countThe, countPrinciples, longestWords);    ##Calls the function again
+        elif stack[0].lower() == 'b':
+            array[1] = array[1] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'b':
-            countB += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'c':
+            array[2] = array[2] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'c':
-            countC += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'd':
+            array[3] = array[3] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'd':
-            countD += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'e':
+            array[4] = array[4] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'e':
-            countE += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'f':
+            array[5] = array[5] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'f':
-            countF += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'g':
+            array[6] = array[6] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'g':
-            countG += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'h':
+            array[7] = array[7] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'h':
-            countH += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'i':
+            array[8] = array[8] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'i':
-            countI += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'j':
+            array[9] = array[9] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'j':
-            countJ += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'k':
+            array[10] = array[10] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'k':
-            countK += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'l':
+            array[11] = array[11] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'l':
-            countL += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'm':
+            array[12] = array[12] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'm':
-            countM += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'n':
+            array[13] = array[13] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'n':
-            countN += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'o':
+            array[14] = array[14] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'o':
-            countO += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'p':
+            array[15] = array[15] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'p':
-            countP += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'q':
+            array[16] = array[16] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'q':
-            countQ += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'r':
+            array[17] = array[17] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'r':
-            countR += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 's':
+            array[18] = array[18] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 's':
-            countS += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 't':
+            array[19] = array[19] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 't':
-            countT += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'u':
+            array[20] = array[20] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'u':
-            countU += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'v':
+            array[21] = array[21] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'v':
-            countV += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'w':
+            array[22] = array[22] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'w':
-            countW += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'x':
+            array[23] = array[23] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'x':
-            countX += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'y':
+            array[24] = array[24] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'y':
-            countY += 1
+            parser(stack, array, countThe, countPrinciples, longestWords);
+        elif stack[0].lower() == 'z':
+            array[25] = array[25] + 1
             stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
-        elif stack[0] == 'z':
-            countZ += 1
-            stack.pop(0)
-            parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);  
+            parser(stack, array, countThe, countPrinciples, longestWords);  
     elif len(stack) <= 0:
-        print "Count A: ", countA
-        print "Count B: ", countB
-        print "Count C: ", countC
-        print "Count D: ", countD
-        print "Count E: ", countE
-        print "Count F: ", countF
-        print "Count G: ", countG
-        print "Count H: ", countH
-        print "Count I: ", countI
-        print "Count J: ", countJ
-        print "Count K: ", countK
-        print "Count L: ", countL
-        print "Count M: ", countM
-        print "Count N: ", countN
-        print "Count O: ", countO
-        print "Count P: ", countP
-        print "Count Q: ", countQ
-        print "Count R: ", countR
-        print "Count S: ", countS
-        print "Count T: ", countT
-        print "Count U: ", countU
-        print "Count V: ", countV
-        print "Count W: ", countW
-        print "Count X: ", countX
-        print "Count Y: ", countY
-        print "Count Z: ", countZ
-        print "Count The: ", countThe
+        index = 0
+        index4 = 0;
+        print "Number of letters: "
+        for char in letters:        ##For each character in letters, print out the letters and array
+            print letters[index],"-", array[index]
+            index += 1              ##Increments index array by 1
+        print "Count The: ", countThe   ##Prints out countThe and countPrinciples
         print "Count Principles: ", countPrinciples
+        print "Longest Words:",
+        for word in longestWords:   
+            if len(longestWords) >= 0:      ##Prints out array which contains the longest words
+                print longestWords[index4],
+                index4 += 1
 
-        infile.close()
-        outfile.close()
+        infile.close()  ##Close both files
+        #outfile.close()
 
-        exit(0)
+        exit(0)         ##Exits the program
 
-parser(stack, countA, countB, countC, countD, countE, countF, countG, countH, countI, countJ, countK, countL, countM, countN, countO, countP, countQ, countR, countS, countT, countU, countV, countW, countX, countY, countZ, countThe, countPrinciples
-);
+##Calls function recursivly until the stack is empty
+parser(stack, array, countThe, countPrinciples, longestWords);
