@@ -1,0 +1,109 @@
+SAMPLE OUTPUT:
+########################
+#get file.txt:
+########################
+
+#server
+Michaels-MacBook-Pro:p1-mghizzi1 Michael$ python serv.py 1234
+Waiting for connections....
+Accepted connection from client:  ('127.0.0.1', 49480)
+Client is now downloading file.txt
+Client has Successfully downloaded file.txt
+The file size was  49 bytes.
+Accepted connection from client:  ('127.0.0.1', 49480)
+
+#client
+Michaels-MacBook-Pro:p1-mghizzi1 Michael$ python cli.py hostname 1234
+
+ftp> get <filename>
+ftp> put <filename>
+ftp> ls
+ftp> quit
+
+Please enter a choice: get file.txt
+Downloading file.txt
+The file size is:  39
+The file data is: 
+a.txt
+sendfilecli.py
+Hello World!
+
+
+
+ftp> get <filename>
+ftp> put <filename>
+ftp> ls
+ftp> quit
+########################################################################
+
+
+########################
+#put file.txt
+########################
+
+#server
+Client is now uploading file.txt
+The file size is:  39
+The file data is: 
+a.txt
+sendfilecli.py
+Hello World!
+
+
+Accepted connection from client:  ('127.0.0.1', 49480)
+
+
+#client
+Please enter a choice: put file.txt
+You are now sending file.txt
+Successfully sentfile.txt
+
+ftp> get <filename>
+ftp> put <filename>
+ftp> ls
+ftp> quit
+
+Please enter a choice: 
+
+########################
+#ls
+########################
+
+#server
+Successfully sent this many bytes: 329
+Accepted connection from client:  ('127.0.0.1', 49481)
+
+#client
+Please enter a choice: ls
+These are the file in the server directory
+total 440
+-rw-r-----@ 1 Michael  staff  200396 Nov 27 20:53 CPSC471_prog1_report.pdf
+-rw-r-----@ 1 Michael  staff    1750 Nov 27 21:05 README.txt
+-rw-r-----@ 1 Michael  staff    5367 Nov 27 19:49 cli.py
+-rw-r-----@ 1 Michael  staff      39 Nov 27 19:49 file.txt
+-rw-r-----@ 1 Michael  staff    5880 Nov 27 19:49 serv.py
+
+ftp> get <filename>
+ftp> put <filename>
+ftp> ls
+ftp> quit
+
+Please enter a choice: 
+
+########################################################################
+
+########################
+#quit
+########################
+
+#server
+Client is now disconnecting from server
+Client sucessfully disconnected from server
+Michaels-MacBook-Pro:p1-mghizzi1 Michael$ 
+
+#client
+Please enter a choice: quit
+You are now disconnecting from the server
+You have now disconnected from the server
+Michaels-MacBook-Pro:p1-mghizzi1 Michael$ 
+########################################################################
